@@ -8,8 +8,7 @@ from rich.progress import ProgressColumn
 from rich.table import Table
 from rich.text import Text
 
-from config import REQUESTS, CONCURRENCY, MODEL
-from logic import format_mean
+from config import REQUESTS, MODEL
 
 ROYAL_BLUE = "#6C8CFF"
 EMERALD = "#40D9A0"
@@ -101,33 +100,8 @@ def successful_requests(results):
     return [row for row in results if row["status"] == "success"]
 
 
-METRICS = (
-    ("Time to first token (TTFT)", "ttft_ms"),
-    ("First token -> stream end", "response_ms"),
-    ("End-to-end request latency", "total_ms"),
-)
-
-
-def latency_table(results):
-    rows = successful_requests(results)
-    table = Table(expand=True, header_style=f"bold {ROYAL_BLUE}", border_style=TRACK)
-    table.add_column("Metric (ms)", style=WHITE)
-    table.add_column("Mean", justify="right", style=CYAN)
-    table.add_column("Min", justify="right", style=EMERALD)
-    table.add_column("Max", justify="right", style=INDIGO)
-    for label, metric in METRICS:
-        values = [row[metric] for row in rows]
-        table.add_row(
-            label,
-            format_mean(values),
-            f"{min(values):.2f}" if values else "—",
-            f"{max(values):.2f}" if values else "—",
-        )
-    return table
-
-
 class LatencyChart:
-    """Stack TTFT and post-first-token time on a common millisecond scale."""
+    """Render total request latency for each request."""
 
     def __init__(self, results):
         self.results = list(results)
@@ -135,17 +109,41 @@ class LatencyChart:
     def __rich_console__(self, console, options):
         rows = successful_requests(self.results)
         if not self.results:
-            yield Text("Bars appear as requests complete.", style=MUTED)
             return
         maximum = max((row["total_ms"] for row in rows), default=0)
-        width = max(5, min(60, options.max_width - 32))
+        width = max(5, min(60, options.max_width - 87))
         table = Table.grid(padding=(0, 1))
         table.add_column(style=WHITE)
         table.add_column(width=width)
         table.add_column(justify="right", style=WHITE)
+        table.add_column(justify="right", style=CYAN)
+        table.add_column(width=17, justify="right", style=EMERALD)
+        table.add_column(justify="right", style=CYAN)
+        table.add_column(justify="right", style=ROYAL_BLUE)
+        table.add_column(width=16, justify="right", style=INDIGO)
+        table.add_row(
+            Text("Request", style=f"bold {WHITE}"),
+            Text("Request latency", style=f"bold {WHITE}"),
+            Text("Time", style=f"bold {WHITE}"),
+            Text("TTFT", style=f"bold {ROYAL_BLUE}"),
+            Text("Previous worker", style=f"bold {EMERALD}"),
+            Text("Cached tokens", style=f"bold {CYAN}"),
+            Text("Prefix Hit Rate (%)", style=f"bold {CYAN}"),
+            Text("Router decision", style=f"bold {INDIGO}"),
+        )
         for row in self.results:
             if row["status"] != "success":
-                table.add_row(row["request_id"], Text("FAILED", style="red"), "—")
+                table.add_row(
+                    row["request_id"],
+                    Text("FAILED", style="red"),
+                    "—",
+                    "—",
+                    "—",
+                    "—",
+                    "—",
+                    "—",
+                    "—",
+                )
                 continue
             total = max(1, round(width * row["total_ms"] / maximum)) if maximum else 0
             first = (
@@ -155,39 +153,35 @@ class LatencyChart:
             )
             bar = Text("█" * first, style=ROYAL_BLUE)
             bar.append("█" * (total - first), style=EMERALD)
-            table.add_row(row["request_id"], bar, f"{row['total_ms']:.2f} ms")
+            table.add_row(
+                row["request_id"],
+                bar,
+                f"{row['total_ms']:.2f} ms",
+                f"{row['ttft_ms']:.2f} ms",
+                str(row.get("cache_on_worker") or "-"),
+                str(
+                    row["cached_tokens"]
+                    if row.get("cached_tokens") not in (None, "")
+                    else "—"
+                ),
+                (
+                    f"{float(row['prefix_hit_rate']):.2f}"
+                    if row.get("prefix_hit_rate") not in (None, "")
+                    else "—"
+                ),
+                str(
+                    row.get("actual_decode_worker")
+                    if row.get("actual_decode_worker") not in (None, "")
+                    else "—"
+                ),
+            )
         yield table
         legend = Text("■ TTFT", style=ROYAL_BLUE)
-        legend.append("   ■ After first token", style=EMERALD)
+        legend.append("   ")
+        legend.append("■", style=ROYAL_BLUE)
+        legend.append("■", style=EMERALD)
+        legend.append(" Total", style=MUTED)
         yield legend
-        yield Text(
-            f"Common scale: 0–{maximum:.2f} ms. Bar length = total latency.",
-            style=MUTED,
-        )
-
-
-def rankings(results):
-    rows = successful_requests(results)
-    if not rows:
-        return Text("No successful requests to rank.", style=MUTED)
-    table = Table(expand=True, border_style=TRACK, header_style=EMERALD)
-    table.add_column("Metric")
-    table.add_column("Least time", style=EMERALD)
-    table.add_column("Most time", style=INDIGO)
-    for label, metric in METRICS:
-        low = min(row[metric] for row in rows)
-        high = max(row[metric] for row in rows)
-        fastest = ", ".join(row["request_id"] for row in rows if row[metric] == low)
-        slowest = ", ".join(row["request_id"] for row in rows if row[metric] == high)
-        table.add_row(label, f"{fastest} - {low:.2f} ms", f"{slowest} - {high:.2f} ms")
-    return table
-
-
-INTERPRETATION = (
-    "High TTFT can indicate prefill, queueing, or transport delay. "
-    "Low TTFT with a large green segment suggests most time was spent after the first token "
-    "(including decoding and transport). Total latency alone does not identify prefill or cache hits."
-)
 
 
 def build_dashboard(
@@ -195,14 +189,16 @@ def build_dashboard(
 ):
     header = Text(f"{request_id}  |  {PHASES.get(phase, phase)}", style=f"bold {WHITE}")
     count = len(successful_requests(results))
+    planned_requests = next(
+        (task.total for task in progress.tasks if task.total is not None),
+        REQUESTS,
+    )
     protocol = Text(
-        f"R1 -> R{REQUESTS} - fixed shuffled order - concurrency {CONCURRENCY}\n",
+        f"R1 -> R{planned_requests} - sequential execution\n",
         style=INDIGO,
     )
-    protocol.append(
-        "Three prefix groups, four different questions per group. Every request is measured independently.",
-        style=MUTED,
-    )
+    description = "Each request randomly selects a prompt from a fixed list of 10."
+    protocol.append(description, style=MUTED)
     return Panel(
         Group(
             Branding(),
@@ -211,23 +207,12 @@ def build_dashboard(
             header,
             progress,
             Text(
-                f"Successful: {count}  |  Failed: {len(results) - count}  |  Planned: {REQUESTS}",
+                f"Successful: {count}  |  Failed: {len(results) - count}  |  Planned: {planned_requests}",
                 style=EMERALD,
             ),
             Panel(
-                Group(
-                    latency_table(results),
-                    Text(
-                        "Statistics use successful requests only. TTFT includes reasoning output when present.",
-                        style=MUTED,
-                    ),
-                ),
-                title="Latency statistics - milliseconds",
-                border_style=ROYAL_BLUE,
-            ),
-            Panel(
-                Group(LatencyChart(results), Text(INTERPRETATION, style=MUTED)),
-                title="Per-request latency",
+                LatencyChart(results),
+                title="Request latency",
                 border_style=EMERALD,
             ),
             Panel(
@@ -238,7 +223,7 @@ def build_dashboard(
                         style=WHITE,
                     ),
                 ),
-                title="Streamed model output - latest 1,200 characters",
+                title="Streamed model output",
                 border_style=CYAN,
             ),
         ),
@@ -267,10 +252,7 @@ def print_summary(results, experiment_name):
                 Text(
                     f"Successful: {count} - Failed: {len(results) - count}", style=WHITE
                 ),
-                latency_table(results),
-                rankings(results),
                 LatencyChart(results),
-                Text(INTERPRETATION, style=MUTED),
             ),
             title=f"{benchmark_title(experiment_name)} - final results",
             border_style=EMERALD,

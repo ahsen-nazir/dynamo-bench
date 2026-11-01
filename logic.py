@@ -15,24 +15,29 @@ def format_mean(values):
     return f"{statistics.mean(values):.2f}"
 
 
-def send_request(prompt, on_token=None):
+def send_request(prompt, on_token=None, request_id=None):
     payload = {
         "model": MODEL,
         "messages": [{"role": "user", "content": prompt}],
         "max_tokens": MAX_OUTPUT_TOKENS,
         "temperature": 0,
         "stream": True,
+        "stream_options": {"include_usage": True},
         "chat_template_kwargs": {"enable_thinking": False},
     }
+    headers = {"Content-Type": "application/json"}
+    if request_id is not None:
+        headers["X-Request-Id"] = request_id
     request = urllib.request.Request(
         URL,
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
+        headers=headers,
         method="POST",
     )
     start = time.perf_counter()
     first_token_time = None
     output_parts = []
+    cached_tokens = ""
     try:
         response_context = urllib.request.urlopen(request, timeout=180)
     except urllib.error.HTTPError as exc:
@@ -51,6 +56,16 @@ def send_request(prompt, on_token=None):
             last_event = event
             if event.get("error"):
                 raise RuntimeError(f"Model request error: {event['error']}")
+            usage = event.get("usage")
+            prompt_details = (
+                usage.get("prompt_tokens_details")
+                if isinstance(usage, dict)
+                else None
+            )
+            if isinstance(prompt_details, dict):
+                cached_value = prompt_details.get("cached_tokens")
+                if cached_value is not None:
+                    cached_tokens = cached_value
             choices = event.get("choices", [])
             if not choices:
                 continue
@@ -73,5 +88,8 @@ def send_request(prompt, on_token=None):
         "ttft_ms": (first_token_time - start) * 1000,
         "response_ms": (end - first_token_time) * 1000,
         "total_ms": (end - start) * 1000,
+        "request_started_at": start,
+        "response_received_at": end,
         "output": "".join(output_parts),
+        "cached_tokens": cached_tokens,
     }

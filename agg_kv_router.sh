@@ -7,6 +7,11 @@
 
 set -e
 
+export DYN_REQUEST_TRACE=1
+export DYN_REQUEST_TRACE_RECORDS=request_end,router_selection
+export DYN_REQUEST_TRACE_SINKS=file,stderr
+export DYN_REQUEST_TRACE_FILE_PATH=./traces/kv
+
 export PATH="$(dirname "$(find "$VIRTUAL_ENV" -type f -name vllm-rs -print -quit)"):$PATH"
 export VLLM_TARGET_DEVICE=cpu
 

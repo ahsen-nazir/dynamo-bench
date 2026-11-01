@@ -7,6 +7,11 @@
 
 set -e
 
+export DYN_REQUEST_TRACE=1
+export DYN_REQUEST_TRACE_RECORDS=request_end,router_selection
+export DYN_REQUEST_TRACE_SINKS=file,stderr
+export DYN_REQUEST_TRACE_FILE_PATH=./traces/rr
+
 export PATH="$(dirname "$(find "$VIRTUAL_ENV" -type f -name vllm-rs -print -quit)"):$PATH"
 export VLLM_TARGET_DEVICE=cpu
 
@@ -79,19 +84,20 @@ print_launch_banner "Launching vLLM Native-gRPC Sidecar (1 GPU)" "$MODEL" "$HTTP
     "vLLM HTTP:  http://127.0.0.1:${VLLM_RS_HTTP_PORT}" \
     "vLLM gRPC:  127.0.0.1:${VLLM_GRPC_PORT}"
 
-python -m dynamo.frontend &
+python -m dynamo.frontend --router-mode round-robin & 
 
 # vllm-rs manages the headless Python engine and exposes native gRPC on loopback.
 # Arguments after -- are forwarded to the managed engine.
 # shellcheck disable=SC2086 # GPU_MEM_ARGS intentionally expands into multiple flags.
 CUDA_VISIBLE_DEVICES="$CUDA_VISIBLE_DEVICES" \
-vllm-rs serve "$MODEL" \
+vllm/vllm/vllm-rs serve "$MODEL" \
     --host 127.0.0.1 \
     --port "$VLLM_RS_HTTP_PORT" \
     --grpc-port "$VLLM_GRPC_PORT" \
     --data-parallel-size "${VLLM_DATA_PARALLEL_SIZE:-1}" \
     --max-model-len "$MAX_MODEL_LEN" \
     --reasoning-parser none \
+    --enable-prompt-tokens-details \
     -- \
     --enforce-eager \
     --max-num-seqs "$MAX_CONCURRENT_SEQS" \

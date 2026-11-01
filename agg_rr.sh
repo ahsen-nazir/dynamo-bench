@@ -7,7 +7,11 @@
 
 set -e
 
-export PATH="$(dirname "$(find "$VIRTUAL_ENV" -type f -name vllm-rs -print -quit)"):$PATH"
+export DYN_REQUEST_TRACE=1
+export DYN_REQUEST_TRACE_RECORDS=request_end,router_selection
+export DYN_REQUEST_TRACE_SINKS=file,stderr
+export DYN_REQUEST_TRACE_FILE_PATH=./traces/rr
+
 export VLLM_TARGET_DEVICE=cpu
 
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
@@ -106,12 +110,13 @@ python -m dynamo.frontend --router-mode round-robin &
 # Arguments after -- are forwarded to the managed engine.
 # shellcheck disable=SC2086 # GPU_MEM_ARGS intentionally expands into multiple flags.
 CUDA_VISIBLE_DEVICES="$VLLM_WORKER1_GPU" \
-vllm-rs serve "$MODEL" \
+./vllm/vllm/vllm-rs serve "$MODEL" \
     --host "$VLLM_HOST" \
     --port "$VLLM_WORKER1_HTTP_PORT" \
     --grpc-port "$VLLM_WORKER1_GRPC_PORT" \
     --max-model-len "$MAX_MODEL_LEN" \
     --reasoning-parser none \
+    --enable-prompt-tokens-details \
     -- \
     --enforce-eager \
     --max-num-seqs "$MAX_CONCURRENT_SEQS" \
@@ -122,12 +127,13 @@ vllm-rs serve "$MODEL" \
 
 # shellcheck disable=SC2086 # GPU_MEM_ARGS intentionally expands into multiple flags.
 CUDA_VISIBLE_DEVICES="$VLLM_WORKER2_GPU" \
-vllm-rs serve "$MODEL" \
+./vllm/vllm/vllm-rs serve "$MODEL" \
     --host "$VLLM_HOST" \
     --port "$VLLM_WORKER2_HTTP_PORT" \
     --grpc-port "$VLLM_WORKER2_GRPC_PORT" \
     --max-model-len "$MAX_MODEL_LEN" \
     --reasoning-parser none \
+    --enable-prompt-tokens-details \
     -- \
     --enforce-eager \
     --max-num-seqs "$MAX_CONCURRENT_SEQS" \
