@@ -352,6 +352,24 @@ class BenchmarkTests(unittest.TestCase):
         self.assertIn("R1 -> R10", output.getvalue())
         self.assertIn("Planned: 10", output.getvalue())
 
+    def test_dashboard_shows_only_prompt_prefix_before_blank_line(self):
+        progress = Progress()
+        progress.add_task("Requests processed", total=1)
+        dashboard = build_dashboard(
+            [],
+            progress,
+            "R1",
+            "RUNNING",
+            "FAMILY_00\n\nShared benchmark prompt content",
+            "Streaming output",
+            "round-robin",
+        )
+        output = io.StringIO()
+        Console(file=output, width=140).print(dashboard)
+
+        self.assertIn("FAMILY_00", output.getvalue())
+        self.assertNotIn("Shared benchmark prompt content", output.getvalue())
+
     def test_workload_has_thirty_sequential_identical_prompt_pairs(self):
         workload = build_requests()
 

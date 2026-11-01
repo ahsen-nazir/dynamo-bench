@@ -217,7 +217,10 @@ def build_dashboard(
             ),
             Panel(
                 Group(
-                    Text(question or "No active request", style=f"bold {CYAN}"),
+                    Text(
+                        question.split("\n\n", 1)[0] if question else "No active request",
+                        style=f"bold {CYAN}",
+                    ),
                     Text(
                         response_text[-1200:] or "Waiting for streamed output…",
                         style=WHITE,

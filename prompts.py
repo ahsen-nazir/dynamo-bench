@@ -1,6 +1,6 @@
 """Reproducible paired prompt-affinity workload."""
 
-PROMPT_FAMILIES = 30
+PROMPT_FAMILIES = 10
 
 SHARED_PROMPT = """Analyze a distributed language model serving system and explain how
 requests move from an API frontend through a router to independent inference
@@ -31,11 +31,13 @@ def build_requests():
     """Return two sequential, identical requests for each unique prompt family."""
     workload = []
     request_number = 1
+
     for family_index in range(PROMPT_FAMILIES):
         family_id = f"F{family_index + 1:02d}"
         prompt = f"FAMILY_{family_index:02d}\n\n{SHARED_PROMPT}"
+        question = f"Analyze the following information: {prompt}"
+
         for request_role in ("priming", "test"):
-            question = f"{family_id} {request_role} request"
             workload.append(
                 (
                     f"R{request_number}",
@@ -46,4 +48,5 @@ def build_requests():
                 )
             )
             request_number += 1
+
     return workload

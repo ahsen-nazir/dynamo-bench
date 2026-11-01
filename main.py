@@ -360,10 +360,10 @@ def run_benchmark(experiment_name):
     events = Queue()
 
     def execute_request(request_id, question, prompt, family_id, request_role):
-        events.put((request_id, question, "RUNNING", "", None, None))
+        events.put((request_id, prompt, "RUNNING", "", None, None))
 
         def on_token(text):
-            events.put((request_id, question, "RUNNING", text, None, None))
+            events.put((request_id, prompt, "RUNNING", text, None, None))
 
         row = {
             "request_id": request_id,
@@ -490,7 +490,7 @@ def run_benchmark(experiment_name):
         events.put(
             (
                 request_id,
-                question,
+                prompt,
                 phase,
                 response_text,
                 row,
