@@ -352,13 +352,13 @@ class BenchmarkTests(unittest.TestCase):
         self.assertIn("R1 -> R10", output.getvalue())
         self.assertIn("Planned: 10", output.getvalue())
 
-    def test_workload_has_fifteen_sequential_identical_prompt_pairs(self):
+    def test_workload_has_thirty_sequential_identical_prompt_pairs(self):
         workload = build_requests()
 
-        self.assertEqual(PROMPT_FAMILIES, 15)
-        self.assertEqual(len(workload), 30)
+        self.assertEqual(PROMPT_FAMILIES, 30)
+        self.assertEqual(len(workload), 60)
         self.assertEqual([request[0] for request in workload], [
-            f"R{index}" for index in range(1, 31)
+            f"R{index}" for index in range(1, 61)
         ])
         for family_index in range(PROMPT_FAMILIES):
             first, second = workload[family_index * 2 : family_index * 2 + 2]

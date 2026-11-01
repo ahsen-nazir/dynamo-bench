@@ -1,6 +1,6 @@
 """Reproducible paired prompt-affinity workload."""
 
-PROMPT_FAMILIES = 15
+PROMPT_FAMILIES = 30
 
 SHARED_PROMPT = """Analyze a distributed language model serving system and explain how
 requests move from an API frontend through a router to independent inference

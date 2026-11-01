@@ -499,3 +499,115 @@ request=R9, actual_prefill_worker=w0, previous_hits=5760.0, previous_queries=103
 Prefix Hit Rate: 93.02%
 request=R10, actual_prefill_worker=w0, previous_hits=6080.0, previous_queries=10664.0, current_hits=6400.0, current_queries=11008.0, delta_hits=320.0, delta_queries=344.0, calculated_rate=93.02%
 Prefix Hit Rate: 93.02%
+request=R1, actual_prefill_worker=w0, previous_hits=N/A, previous_queries=N/A, current_hits=0.0, current_queries=0.0, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R2, actual_prefill_worker=w0, previous_hits=0.0, previous_queries=0.0, current_hits=0.0, current_queries=0.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R3, actual_prefill_worker=w1, previous_hits=N/A, previous_queries=N/A, current_hits=320.0, current_queries=688.0, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R4, actual_prefill_worker=w1, previous_hits=320.0, previous_queries=688.0, current_hits=320.0, current_queries=688.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R5, actual_prefill_worker=w1, previous_hits=320.0, previous_queries=688.0, current_hits=320.0, current_queries=688.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R6, actual_prefill_worker=w1, previous_hits=320.0, previous_queries=688.0, current_hits=320.0, current_queries=688.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R7, actual_prefill_worker=w1, previous_hits=320.0, previous_queries=688.0, current_hits=320.0, current_queries=688.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R8, actual_prefill_worker=w1, previous_hits=320.0, previous_queries=688.0, current_hits=320.0, current_queries=688.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R9, actual_prefill_worker=w0, previous_hits=0.0, previous_queries=0.0, current_hits=960.0, current_queries=2064.0, delta_hits=960.0, delta_queries=2064.0, calculated_rate=46.51%
+Prefix Hit Rate: 46.51%
+request=R10, actual_prefill_worker=w0, previous_hits=960.0, previous_queries=2064.0, current_hits=960.0, current_queries=2064.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R11, actual_prefill_worker=w0, previous_hits=960.0, previous_queries=2064.0, current_hits=960.0, current_queries=2064.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R12, actual_prefill_worker=w0, previous_hits=960.0, previous_queries=2064.0, current_hits=960.0, current_queries=2064.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R13, actual_prefill_worker=w0, previous_hits=960.0, previous_queries=2064.0, current_hits=960.0, current_queries=2064.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R14, actual_prefill_worker=w0, previous_hits=960.0, previous_queries=2064.0, current_hits=960.0, current_queries=2064.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R15, actual_prefill_worker=w1, previous_hits=320.0, previous_queries=688.0, current_hits=1280.0, current_queries=2752.0, delta_hits=960.0, delta_queries=2064.0, calculated_rate=46.51%
+Prefix Hit Rate: 46.51%
+request=R16, actual_prefill_worker=w1, previous_hits=1280.0, previous_queries=2752.0, current_hits=1280.0, current_queries=2752.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R17, actual_prefill_worker=w1, previous_hits=1280.0, previous_queries=2752.0, current_hits=1280.0, current_queries=2752.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R18, actual_prefill_worker=w1, previous_hits=1280.0, previous_queries=2752.0, current_hits=1280.0, current_queries=2752.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R19, actual_prefill_worker=w0, previous_hits=960.0, previous_queries=2064.0, current_hits=1600.0, current_queries=3440.0, delta_hits=640.0, delta_queries=1376.0, calculated_rate=46.51%
+Prefix Hit Rate: 46.51%
+request=R20, actual_prefill_worker=w0, previous_hits=1600.0, previous_queries=3440.0, current_hits=1600.0, current_queries=3440.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R21, actual_prefill_worker=w1, previous_hits=1280.0, previous_queries=2752.0, current_hits=1600.0, current_queries=3440.0, delta_hits=320.0, delta_queries=688.0, calculated_rate=46.51%
+Prefix Hit Rate: 46.51%
+request=R22, actual_prefill_worker=w1, previous_hits=1600.0, previous_queries=3440.0, current_hits=1600.0, current_queries=3440.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R23, actual_prefill_worker=w1, previous_hits=1600.0, previous_queries=3440.0, current_hits=1600.0, current_queries=3440.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R24, actual_prefill_worker=w1, previous_hits=1600.0, previous_queries=3440.0, current_hits=1600.0, current_queries=3440.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R25, actual_prefill_worker=w0, previous_hits=1600.0, previous_queries=3440.0, current_hits=2240.0, current_queries=4816.0, delta_hits=640.0, delta_queries=1376.0, calculated_rate=46.51%
+Prefix Hit Rate: 46.51%
+request=R26, actual_prefill_worker=w0, previous_hits=2240.0, previous_queries=4816.0, current_hits=2240.0, current_queries=4816.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R27, actual_prefill_worker=w1, previous_hits=1600.0, previous_queries=3440.0, current_hits=1920.0, current_queries=4128.0, delta_hits=320.0, delta_queries=688.0, calculated_rate=46.51%
+Prefix Hit Rate: 46.51%
+request=R28, actual_prefill_worker=w1, previous_hits=1920.0, previous_queries=4128.0, current_hits=1920.0, current_queries=4128.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R29, actual_prefill_worker=w0, previous_hits=2240.0, previous_queries=4816.0, current_hits=2560.0, current_queries=5504.0, delta_hits=320.0, delta_queries=688.0, calculated_rate=46.51%
+Prefix Hit Rate: 46.51%
+request=R30, actual_prefill_worker=w0, previous_hits=2560.0, previous_queries=5504.0, current_hits=2560.0, current_queries=5504.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R1, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R2, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R3, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R4, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R5, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R6, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R7, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R8, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R9, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R10, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R11, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R12, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R13, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R14, actual_prefill_worker=N/A, previous_hits=N/A, previous_queries=N/A, current_hits=N/A, current_queries=N/A, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+request=R1, actual_prefill_worker=w0, previous_hits=N/A, previous_queries=N/A, current_hits=0.0, current_queries=0.0, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R2, actual_prefill_worker=w0, previous_hits=0.0, previous_queries=0.0, current_hits=0.0, current_queries=0.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R3, actual_prefill_worker=w1, previous_hits=N/A, previous_queries=N/A, current_hits=320.0, current_queries=734.0, delta_hits=N/A, delta_queries=N/A, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R4, actual_prefill_worker=w1, previous_hits=320.0, previous_queries=734.0, current_hits=320.0, current_queries=734.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R5, actual_prefill_worker=w1, previous_hits=320.0, previous_queries=734.0, current_hits=320.0, current_queries=734.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R6, actual_prefill_worker=w1, previous_hits=320.0, previous_queries=734.0, current_hits=320.0, current_queries=734.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R7, actual_prefill_worker=w0, previous_hits=0.0, previous_queries=0.0, current_hits=640.0, current_queries=1488.0, delta_hits=640.0, delta_queries=1488.0, calculated_rate=43.01%
+Prefix Hit Rate: 43.01%
+request=R8, actual_prefill_worker=w0, previous_hits=640.0, previous_queries=1488.0, current_hits=640.0, current_queries=1488.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R9, actual_prefill_worker=w1, previous_hits=320.0, previous_queries=734.0, current_hits=640.0, current_queries=1474.0, delta_hits=320.0, delta_queries=740.0, calculated_rate=43.24%
+Prefix Hit Rate: 43.24%
+request=R10, actual_prefill_worker=w1, previous_hits=640.0, previous_queries=1474.0, current_hits=640.0, current_queries=1474.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R11, actual_prefill_worker=w0, previous_hits=640.0, previous_queries=1488.0, current_hits=960.0, current_queries=2224.0, delta_hits=320.0, delta_queries=736.0, calculated_rate=43.48%
+Prefix Hit Rate: 43.48%
+request=R12, actual_prefill_worker=w0, previous_hits=960.0, previous_queries=2224.0, current_hits=960.0, current_queries=2224.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R13, actual_prefill_worker=w1, previous_hits=640.0, previous_queries=1474.0, current_hits=960.0, current_queries=2212.0, delta_hits=320.0, delta_queries=738.0, calculated_rate=43.36%
+Prefix Hit Rate: 43.36%
+request=R14, actual_prefill_worker=w1, previous_hits=960.0, previous_queries=2212.0, current_hits=960.0, current_queries=2212.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R15, actual_prefill_worker=w1, previous_hits=960.0, previous_queries=2212.0, current_hits=960.0, current_queries=2212.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R16, actual_prefill_worker=w1, previous_hits=960.0, previous_queries=2212.0, current_hits=960.0, current_queries=2212.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R17, actual_prefill_worker=w0, previous_hits=960.0, previous_queries=2224.0, current_hits=1600.0, current_queries=3702.0, delta_hits=640.0, delta_queries=1478.0, calculated_rate=43.30%
+Prefix Hit Rate: 43.30%
+request=R18, actual_prefill_worker=w0, previous_hits=1600.0, previous_queries=3702.0, current_hits=1600.0, current_queries=3702.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
+request=R19, actual_prefill_worker=w0, previous_hits=1600.0, previous_queries=3702.0, current_hits=1600.0, current_queries=3702.0, delta_hits=0.0, delta_queries=0.0, calculated_rate=N/A
+Prefix Hit Rate: N/A (baseline, counter reset, or zero queries)
