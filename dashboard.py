@@ -8,7 +8,7 @@ from rich.progress import ProgressColumn
 from rich.table import Table
 from rich.text import Text
 
-from config import REQUESTS, MODEL
+from config import CONCURRENCY, MODEL, REQUESTS
 
 ROYAL_BLUE = "#6C8CFF"
 EMERALD = "#40D9A0"
@@ -126,7 +126,7 @@ class LatencyChart:
             Text("Request latency", style=f"bold {WHITE}"),
             Text("Time", style=f"bold {WHITE}"),
             Text("TTFT", style=f"bold {ROYAL_BLUE}"),
-            Text("Previous worker", style=f"bold {EMERALD}"),
+            Text("Previous workers", style=f"bold {EMERALD}"),
             Text("Cached tokens", style=f"bold {CYAN}"),
             Text("Prefix Hit Rate (%)", style=f"bold {CYAN}"),
             Text("Router decision", style=f"bold {INDIGO}"),
@@ -158,7 +158,7 @@ class LatencyChart:
                 bar,
                 f"{row['total_ms']:.2f} ms",
                 f"{row['ttft_ms']:.2f} ms",
-                str(row.get("cache_on_worker") or "-"),
+                str(row.get("previous_workers") or "-"),
                 str(
                     row["cached_tokens"]
                     if row.get("cached_tokens") not in (None, "")
@@ -170,8 +170,8 @@ class LatencyChart:
                     else "—"
                 ),
                 str(
-                    row.get("actual_decode_worker")
-                    if row.get("actual_decode_worker") not in (None, "")
+                    row.get("router_decision_worker")
+                    if row.get("router_decision_worker") not in (None, "")
                     else "—"
                 ),
             )
@@ -194,10 +194,11 @@ def build_dashboard(
         REQUESTS,
     )
     protocol = Text(
-        f"R1 -> R{planned_requests} - sequential execution\n",
+        f"RUNxx-R1 -> RUNxx-R{planned_requests} - "
+        f"up to {CONCURRENCY} concurrent requests\n",
         style=INDIGO,
     )
-    description = "Each request randomly selects a prompt from a fixed list of 10."
+    description = "Priming/test requests run in order within each prompt family."
     protocol.append(description, style=MUTED)
     return Panel(
         Group(
@@ -218,7 +219,9 @@ def build_dashboard(
             Panel(
                 Group(
                     Text(
-                        question.split("\n\n", 1)[0] if question else "No active request",
+                        question.split("\n\n", 1)[0]
+                        if question
+                        else "No active request",
                         style=f"bold {CYAN}",
                     ),
                     Text(

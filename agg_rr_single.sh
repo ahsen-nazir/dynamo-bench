@@ -7,6 +7,7 @@
 
 set -e
 
+export VLLM_SERVER_DEV_MODE=1
 export DYN_REQUEST_TRACE=1
 export DYN_REQUEST_TRACE_RECORDS=request_end,router_selection
 export DYN_REQUEST_TRACE_SINKS=file,stderr
@@ -49,7 +50,6 @@ while [[ $# -gt 0 ]]; do
             echo "  VLLM_GRPC_PORT          vLLM gRPC port (default: 30001)"
             echo "  VLLM_DATA_PARALLEL_SIZE Number of local data-parallel ranks (default: 1)"
             echo "  MAX_MODEL_LEN           Maximum model length (default: 4096)"
-            echo "  MAX_CONCURRENT_SEQS     Maximum concurrent sequences (default: 2)"
             echo "  DEFAULT_KV_CACHE_BYTES  KV cache cap when not profiling (default: 1119388000)"
             echo "  DYNAMO_SIDECAR_BIN      Require this absolute native binary path (no fallback)"
             exit 0
@@ -66,7 +66,6 @@ resolve_sidecar vllm SIDECAR_CMD
 trap dynamo_exit_trap EXIT
 
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-4096}"
-MAX_CONCURRENT_SEQS="${MAX_CONCURRENT_SEQS:-2}"
 VLLM_RS_HTTP_PORT=$(dyn_port DYN_ENGINE_HTTP_PORT 1 "${VLLM_RS_HTTP_PORT:-8100}")
 VLLM_GRPC_PORT=$(dyn_port DYN_ENGINE_GRPC_PORT 1 "${VLLM_GRPC_PORT:-30001}")
 CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
@@ -100,7 +99,7 @@ vllm/vllm/vllm-rs serve "$MODEL" \
     --enable-prompt-tokens-details \
     -- \
     --enforce-eager \
-    --max-num-seqs "$MAX_CONCURRENT_SEQS" \
+    --max-num-seqs 1 \
     $GPU_MEM_ARGS \
     "${EXTRA_ARGS[@]}" &
 

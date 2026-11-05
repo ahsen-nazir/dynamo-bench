@@ -7,6 +7,7 @@
 
 set -e
 
+export VLLM_SERVER_DEV_MODE=1
 export DYN_REQUEST_TRACE=1
 export DYN_REQUEST_TRACE_RECORDS=request_end,router_selection
 export DYN_REQUEST_TRACE_SINKS=file,stderr
@@ -56,7 +57,6 @@ while [[ $# -gt 0 ]]; do
             echo "  VLLM_WORKER2_KV_EVENT_PORT  Second vLLM KV-event port (default: 20081)"
             echo "  VLLM_BLOCK_SIZE             KV-event block size (default: 64)"
             echo "  MAX_MODEL_LEN               Maximum model length (default: 4096)"
-            echo "  MAX_CONCURRENT_SEQS         Maximum concurrent sequences per engine (default: 2)"
             echo "  DEFAULT_KV_CACHE_BYTES      KV cache cap when not profiling (default: 1119388000)"
             exit 0
             ;;
@@ -84,7 +84,6 @@ VLLM_WORKER2_GRPC_PORT="${VLLM_WORKER2_GRPC_PORT:-50052}"
 VLLM_WORKER2_KV_EVENT_PORT="${VLLM_WORKER2_KV_EVENT_PORT:-20081}"
 VLLM_BLOCK_SIZE="${VLLM_BLOCK_SIZE:-64}"
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-4096}"
-MAX_CONCURRENT_SEQS="${MAX_CONCURRENT_SEQS:-2}"
 SYSTEM_PORT1="${DYN_SYSTEM_PORT1:-${DYN_SYSTEM_PORT:-8081}}"
 SYSTEM_PORT2="${DYN_SYSTEM_PORT2:-8082}"
 
@@ -119,7 +118,7 @@ CUDA_VISIBLE_DEVICES="$VLLM_WORKER1_GPU" \
     --enable-prompt-tokens-details \
     -- \
     --enforce-eager \
-    --max-num-seqs "$MAX_CONCURRENT_SEQS" \
+    --max-num-seqs 1 \
     --block-size "$VLLM_BLOCK_SIZE" \
     --kv-events-config "$KV_EVENTS_CONFIG_1" \
     $GPU_MEM_ARGS \
@@ -136,7 +135,7 @@ CUDA_VISIBLE_DEVICES="$VLLM_WORKER2_GPU" \
     --enable-prompt-tokens-details \
     -- \
     --enforce-eager \
-    --max-num-seqs "$MAX_CONCURRENT_SEQS" \
+    --max-num-seqs 1 \
     --block-size "$VLLM_BLOCK_SIZE" \
     --kv-events-config "$KV_EVENTS_CONFIG_2" \
     $GPU_MEM_ARGS \

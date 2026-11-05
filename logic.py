@@ -7,6 +7,7 @@ import urllib.error
 import urllib.request
 
 from config import MAX_OUTPUT_TOKENS, MODEL, URL
+from worker_discovery import request_id_from_completion_id
 
 
 def format_mean(values):
@@ -22,7 +23,6 @@ def send_request(prompt, on_token=None, request_id=None):
         "max_tokens": MAX_OUTPUT_TOKENS,
         "temperature": 0,
         "stream": True,
-        "stream_options": {"include_usage": True},
         "chat_template_kwargs": {"enable_thinking": False},
     }
     headers = {"Content-Type": "application/json"}
@@ -37,7 +37,7 @@ def send_request(prompt, on_token=None, request_id=None):
     start = time.perf_counter()
     first_token_time = None
     output_parts = []
-    cached_tokens = ""
+    completion_id = None
     try:
         response_context = urllib.request.urlopen(request, timeout=180)
     except urllib.error.HTTPError as exc:
@@ -56,16 +56,14 @@ def send_request(prompt, on_token=None, request_id=None):
             last_event = event
             if event.get("error"):
                 raise RuntimeError(f"Model request error: {event['error']}")
-            usage = event.get("usage")
-            prompt_details = (
-                usage.get("prompt_tokens_details")
-                if isinstance(usage, dict)
-                else None
-            )
-            if isinstance(prompt_details, dict):
-                cached_value = prompt_details.get("cached_tokens")
-                if cached_value is not None:
-                    cached_tokens = cached_value
+            event_id = event.get("id")
+            if event_id is not None:
+                if completion_id is not None and event_id != completion_id:
+                    raise RuntimeError(
+                        "Model response changed completion ID from "
+                        f"{completion_id!r} to {event_id!r}"
+                    )
+                completion_id = event_id
             choices = event.get("choices", [])
             if not choices:
                 continue
@@ -84,12 +82,14 @@ def send_request(prompt, on_token=None, request_id=None):
     if first_token_time is None:
         details = json.dumps(last_event, ensure_ascii=False) if last_event else "No SSE data events received"
         raise RuntimeError(f"No generated tokens received. Last server event: {details[:1000]}")
+    if not isinstance(completion_id, str) or not completion_id:
+        raise RuntimeError("Model response did not include a completion ID")
     return {
+        "trace_request_id": request_id_from_completion_id(completion_id),
         "ttft_ms": (first_token_time - start) * 1000,
         "response_ms": (end - first_token_time) * 1000,
         "total_ms": (end - start) * 1000,
         "request_started_at": start,
         "response_received_at": end,
         "output": "".join(output_parts),
-        "cached_tokens": cached_tokens,
     }

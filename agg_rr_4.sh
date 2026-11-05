@@ -1,0 +1,163 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Four aggregated vLLM native-gRPC sidecars behind Dynamo's KV-aware router.
+# Requires a vLLM build that exposes KV-event source discovery.
+
+set -e
+
+export VLLM_SERVER_DEV_MODE=1
+export DYN_REQUEST_TRACE=1
+export DYN_REQUEST_TRACE_RECORDS=request_end,router_selection
+export DYN_REQUEST_TRACE_SINKS=file,stderr
+export DYN_REQUEST_TRACE_FILE_PATH=./traces/rr
+
+export VLLM_TARGET_DEVICE=cpu
+
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+# shellcheck disable=SC1091 # Resolved relative to this script at runtime.
+source "$SCRIPT_DIR/gpu_utils.sh"
+# shellcheck disable=SC1091 # Resolved relative to this script at runtime.
+source "$SCRIPT_DIR/launch_utils.sh"
+
+MODEL="${MODEL:-Qwen/Qwen3-0.6B}"
+
+EXTRA_ARGS=()
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --model)
+            if [[ $# -lt 2 || "$2" == -* ]]; then
+                echo "Missing value for --model"
+                echo "Use --help for usage information"
+                exit 1
+            fi
+            MODEL="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Usage: $0 [--model <name>] [vLLM engine options...]"
+            echo
+            echo "Additional options are passed to all managed vLLM engines."
+            echo
+            echo "Environment overrides:"
+            echo "  DYNAMO_SIDECAR_BIN      Require this absolute native binary path (no fallback)"
+            echo "  MODEL                       Model to serve (default: Qwen/Qwen3-0.6B)"
+            echo "  VLLM_WORKER1_GPU            First GPU assignment (default: 0)"
+            echo "  VLLM_WORKER2_GPU            Second GPU assignment (default: 1)"
+            echo "  VLLM_WORKER3_GPU            Third GPU assignment (default: 2)"
+            echo "  VLLM_WORKER4_GPU            Fourth GPU assignment (default: 3)"
+            echo "  DYN_HTTP_PORT               Dynamo frontend port (default: 8000)"
+            echo "  DYN_SYSTEM_PORT             First sidecar system port fallback (default: 8081)"
+            echo "  DYN_SYSTEM_PORT1            First sidecar system port override (default: DYN_SYSTEM_PORT)"
+            echo "  DYN_SYSTEM_PORT2            Second sidecar system port (default: 8082)"
+            echo "  DYN_SYSTEM_PORT3            Third sidecar system port (default: 8083)"
+            echo "  DYN_SYSTEM_PORT4            Fourth sidecar system port (default: 8084)"
+            echo "  VLLM_WORKER1_HTTP_PORT      First vLLM HTTP port (default: 8100)"
+            echo "  VLLM_WORKER1_GRPC_PORT      First vLLM gRPC port (default: 50051)"
+            echo "  VLLM_WORKER1_KV_EVENT_PORT  First vLLM KV-event port (default: 20080)"
+            echo "  VLLM_WORKER2_HTTP_PORT      Second vLLM HTTP port (default: 8110)"
+            echo "  VLLM_WORKER2_GRPC_PORT      Second vLLM gRPC port (default: 50052)"
+            echo "  VLLM_WORKER2_KV_EVENT_PORT  Second vLLM KV-event port (default: 20081)"
+            echo "  VLLM_WORKER3_HTTP_PORT      Third vLLM HTTP port (default: 8120)"
+            echo "  VLLM_WORKER3_GRPC_PORT      Third vLLM gRPC port (default: 50053)"
+            echo "  VLLM_WORKER3_KV_EVENT_PORT  Third vLLM KV-event port (default: 20082)"
+            echo "  VLLM_WORKER4_HTTP_PORT      Fourth vLLM HTTP port (default: 8130)"
+            echo "  VLLM_WORKER4_GRPC_PORT      Fourth vLLM gRPC port (default: 50054)"
+            echo "  VLLM_WORKER4_KV_EVENT_PORT  Fourth vLLM KV-event port (default: 20083)"
+            echo "  VLLM_BLOCK_SIZE             KV-event block size (default: 64)"
+            echo "  MAX_MODEL_LEN               Maximum model length (default: 4096)"
+            echo "  DEFAULT_KV_CACHE_BYTES      KV cache cap when not profiling (default: 1119388000)"
+            exit 0
+            ;;
+        *)
+            EXTRA_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+resolve_sidecar vllm SIDECAR_CMD
+
+trap dynamo_exit_trap EXIT
+
+export PYTHONHASHSEED=0
+
+VLLM_HOST="127.0.0.1"
+VLLM_WORKER1_GPU="${VLLM_WORKER1_GPU:-0}"
+VLLM_WORKER2_GPU="${VLLM_WORKER2_GPU:-1}"
+VLLM_WORKER3_GPU="${VLLM_WORKER3_GPU:-2}"
+VLLM_WORKER4_GPU="${VLLM_WORKER4_GPU:-3}"
+VLLM_WORKER1_HTTP_PORT="${VLLM_WORKER1_HTTP_PORT:-8100}"
+VLLM_WORKER1_GRPC_PORT="${VLLM_WORKER1_GRPC_PORT:-50051}"
+VLLM_WORKER1_KV_EVENT_PORT="${VLLM_WORKER1_KV_EVENT_PORT:-20080}"
+VLLM_WORKER2_HTTP_PORT="${VLLM_WORKER2_HTTP_PORT:-8110}"
+VLLM_WORKER2_GRPC_PORT="${VLLM_WORKER2_GRPC_PORT:-50052}"
+VLLM_WORKER2_KV_EVENT_PORT="${VLLM_WORKER2_KV_EVENT_PORT:-20081}"
+VLLM_WORKER3_HTTP_PORT="${VLLM_WORKER3_HTTP_PORT:-8120}"
+VLLM_WORKER3_GRPC_PORT="${VLLM_WORKER3_GRPC_PORT:-50053}"
+VLLM_WORKER3_KV_EVENT_PORT="${VLLM_WORKER3_KV_EVENT_PORT:-20082}"
+VLLM_WORKER4_HTTP_PORT="${VLLM_WORKER4_HTTP_PORT:-8130}"
+VLLM_WORKER4_GRPC_PORT="${VLLM_WORKER4_GRPC_PORT:-50054}"
+VLLM_WORKER4_KV_EVENT_PORT="${VLLM_WORKER4_KV_EVENT_PORT:-20083}"
+VLLM_BLOCK_SIZE="${VLLM_BLOCK_SIZE:-64}"
+MAX_MODEL_LEN="${MAX_MODEL_LEN:-4096}"
+SYSTEM_PORT1="${DYN_SYSTEM_PORT1:-${DYN_SYSTEM_PORT:-8081}}"
+SYSTEM_PORT2="${DYN_SYSTEM_PORT2:-8082}"
+SYSTEM_PORT3="${DYN_SYSTEM_PORT3:-8083}"
+SYSTEM_PORT4="${DYN_SYSTEM_PORT4:-8084}"
+
+# Default KV cache cap from profiling (2x safety over min=560 MiB); ~3.8 GiB peak VRAM.
+# The profiler/test framework takes precedence through _PROFILE_OVERRIDE_VLLM_KV_CACHE_BYTES.
+DEFAULT_KV_CACHE_BYTES="${DEFAULT_KV_CACHE_BYTES:-1119388000}"
+GPU_MEM_ARGS=$(build_vllm_gpu_mem_args)
+if [[ -z "$GPU_MEM_ARGS" ]]; then
+    GPU_MEM_ARGS="--kv-cache-memory-bytes $DEFAULT_KV_CACHE_BYTES --gpu-memory-utilization 0.01"
+fi
+
+KV_EVENTS_CONFIG_1="{\"publisher\":\"zmq\",\"topic\":\"kv-events\",\"endpoint\":\"tcp://*:${VLLM_WORKER1_KV_EVENT_PORT}\",\"enable_kv_cache_events\":true}"
+KV_EVENTS_CONFIG_2="{\"publisher\":\"zmq\",\"topic\":\"kv-events\",\"endpoint\":\"tcp://*:${VLLM_WORKER2_KV_EVENT_PORT}\",\"enable_kv_cache_events\":true}"
+KV_EVENTS_CONFIG_3="{\"publisher\":\"zmq\",\"topic\":\"kv-events\",\"endpoint\":\"tcp://*:${VLLM_WORKER3_KV_EVENT_PORT}\",\"enable_kv_cache_events\":true}"
+KV_EVENTS_CONFIG_4="{\"publisher\":\"zmq\",\"topic\":\"kv-events\",\"endpoint\":\"tcp://*:${VLLM_WORKER4_KV_EVENT_PORT}\",\"enable_kv_cache_events\":true}"
+
+HTTP_PORT="${DYN_HTTP_PORT:-8000}"
+print_launch_banner "Launching vLLM Native-gRPC Sidecars with KV Routing (4 workers)" "$MODEL" "$HTTP_PORT" \
+    "Worker 1: GPU ${VLLM_WORKER1_GPU}, gRPC ${VLLM_HOST}:${VLLM_WORKER1_GRPC_PORT}, KV events tcp://*:${VLLM_WORKER1_KV_EVENT_PORT}" \
+    "Worker 2: GPU ${VLLM_WORKER2_GPU}, gRPC ${VLLM_HOST}:${VLLM_WORKER2_GRPC_PORT}, KV events tcp://*:${VLLM_WORKER2_KV_EVENT_PORT}" \
+    "Worker 3: GPU ${VLLM_WORKER3_GPU}, gRPC ${VLLM_HOST}:${VLLM_WORKER3_GRPC_PORT}, KV events tcp://*:${VLLM_WORKER3_KV_EVENT_PORT}" \
+    "Worker 4: GPU ${VLLM_WORKER4_GPU}, gRPC ${VLLM_HOST}:${VLLM_WORKER4_GRPC_PORT}, KV events tcp://*:${VLLM_WORKER4_KV_EVENT_PORT}"
+
+python -m dynamo.frontend --router-mode round-robin &
+
+# vllm-rs manages each headless Python engine and exposes native gRPC on loopback.
+# Arguments after -- are forwarded to the managed engine.
+WORKER_GPUS=("$VLLM_WORKER1_GPU" "$VLLM_WORKER2_GPU" "$VLLM_WORKER3_GPU" "$VLLM_WORKER4_GPU")
+WORKER_HTTP_PORTS=("$VLLM_WORKER1_HTTP_PORT" "$VLLM_WORKER2_HTTP_PORT" "$VLLM_WORKER3_HTTP_PORT" "$VLLM_WORKER4_HTTP_PORT")
+WORKER_GRPC_PORTS=("$VLLM_WORKER1_GRPC_PORT" "$VLLM_WORKER2_GRPC_PORT" "$VLLM_WORKER3_GRPC_PORT" "$VLLM_WORKER4_GRPC_PORT")
+WORKER_KV_EVENTS_CONFIGS=("$KV_EVENTS_CONFIG_1" "$KV_EVENTS_CONFIG_2" "$KV_EVENTS_CONFIG_3" "$KV_EVENTS_CONFIG_4")
+WORKER_SYSTEM_PORTS=("$SYSTEM_PORT1" "$SYSTEM_PORT2" "$SYSTEM_PORT3" "$SYSTEM_PORT4")
+
+for index in "${!WORKER_GPUS[@]}"; do
+    # shellcheck disable=SC2086 # GPU_MEM_ARGS intentionally expands into multiple flags.
+    CUDA_VISIBLE_DEVICES="${WORKER_GPUS[$index]}" \
+    ./vllm/vllm/vllm-rs serve "$MODEL" \
+        --host "$VLLM_HOST" \
+        --port "${WORKER_HTTP_PORTS[$index]}" \
+        --grpc-port "${WORKER_GRPC_PORTS[$index]}" \
+        --max-model-len "$MAX_MODEL_LEN" \
+        --reasoning-parser none \
+        --enable-prompt-tokens-details \
+        -- \
+        --enforce-eager \
+        --max-num-seqs 1 \
+        --block-size "$VLLM_BLOCK_SIZE" \
+        --kv-events-config "${WORKER_KV_EVENTS_CONFIGS[$index]}" \
+        $GPU_MEM_ARGS \
+        "${EXTRA_ARGS[@]}" &
+
+    DYN_SYSTEM_PORT="${WORKER_SYSTEM_PORTS[$index]}" \
+        "${SIDECAR_CMD[@]}" \
+        --grpc-endpoint "${VLLM_HOST}:${WORKER_GRPC_PORTS[$index]}" &
+done
+
+wait_any_exit

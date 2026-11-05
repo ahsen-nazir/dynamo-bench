@@ -40,6 +40,8 @@
 #   the launch when co-resident tests use >10% of VRAM (vLLM checks free memory
 #   against the fraction *before* applying the byte cap).
 # ---------------------------------------------------------------------------
+export VLLM_SERVER_DEV_MODE=1
+
 build_vllm_gpu_mem_args() {
     if [[ -n "${_PROFILE_OVERRIDE_VLLM_KV_CACHE_BYTES:-}" ]]; then
         echo "--kv-cache-memory-bytes ${_PROFILE_OVERRIDE_VLLM_KV_CACHE_BYTES} --gpu-memory-utilization 0.01"
