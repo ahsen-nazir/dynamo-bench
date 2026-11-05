@@ -10,8 +10,8 @@ WARMUP_MAX_OUTPUT_TOKENS = 5
 OUTPUT_CSV = "roundrobin_prefix_cache_benchmark.csv"
 REQUESTS = 10
 CONCURRENCY = 1
-RUNS = 10
-PROMPTING_TYPE = "random"  # "priming" or "random"
+RUNS = 1
+PROMPTING_TYPE = "priming"  # "priming" or "random"
 PROMPT_LENGTH = "long"
 WORKER_PORTS = {
     f"w{index - 1}": int(os.environ.get(f"VLLM_WORKER{index}_HTTP_PORT", default_port))

@@ -217,12 +217,20 @@ def run_benchmark(experiment_name, worker_labels):
         all_results.extend(run_results)
 
     if all_results:
-        with open(output_csv, "w", newline="", encoding="utf-8") as file:
-            fieldnames = [
-                key for key in all_results[0] if not key.startswith("_")
-            ]
+        fieldnames = [key for key in all_results[0] if not key.startswith("_")]
+        file_exists = output_csv.exists() and output_csv.stat().st_size > 0
+        if file_exists:
+            with open(output_csv, "r", newline="", encoding="utf-8") as existing_file:
+                existing_fieldnames = next(csv.reader(existing_file), [])
+            if existing_fieldnames != fieldnames:
+                raise RuntimeError(
+                    f"Cannot append results to {output_csv}: CSV columns do not "
+                    "match the existing file"
+                )
+        with open(output_csv, "a", newline="", encoding="utf-8") as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
-            writer.writeheader()
+            if not file_exists:
+                writer.writeheader()
             writer.writerows(
                 {key: row[key] for key in fieldnames}
                 for row in all_results

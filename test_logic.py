@@ -160,6 +160,7 @@ class BenchmarkTests(unittest.TestCase):
                 patch("main.OUTPUT_CSV", str(output_path)),
                 patch("main.PROMPTING_TYPE", "priming"),
                 patch("main.CONCURRENCY", 1),
+                patch("main.RUNS", 10),
                 patch("main._reset_prefix_caches") as reset_caches,
                 patch(
                     "main._run_benchmark_once",
@@ -218,6 +219,38 @@ class BenchmarkTests(unittest.TestCase):
                 random_file.read_text(encoding="utf-8").splitlines()[1].split(",")[-1],
                 "random",
             )
+
+    def test_benchmark_appends_rows_without_repeating_csv_header(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output_path = Path(directory) / "roundrobin.csv"
+            for run_number in (1, 2):
+                with (
+                    patch("main.OUTPUT_CSV", str(output_path)),
+                    patch("main.PROMPTING_TYPE", "priming"),
+                    patch("main.CONCURRENCY", 1),
+                    patch("main.RUNS", 1),
+                    patch("main._reset_prefix_caches"),
+                    patch(
+                        "main._run_benchmark_once",
+                        return_value=[
+                            {
+                                "run_number": run_number,
+                                "request_id": f"RUN{run_number:02d}-R1",
+                                "Mode": "priming",
+                            }
+                        ],
+                    ),
+                    patch("main.console.print"),
+                ):
+                    run_benchmark("round-robin", {})
+
+            saved_path = output_path.with_name("priming_roundrobin.csv")
+            rows = saved_path.read_text(encoding="utf-8").splitlines()
+            self.assertEqual(rows, [
+                "run_number,request_id,Mode",
+                "1,RUN01-R1,priming",
+                "2,RUN02-R1,priming",
+            ])
 
     def test_benchmark_uses_con_prefix_when_concurrency_exceeds_one(self):
         with tempfile.TemporaryDirectory() as directory:
