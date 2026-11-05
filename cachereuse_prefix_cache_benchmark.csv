@@ -1,4 +1,0 @@
-request_id,status,ttft_ms,response_ms,total_ms,cached_tokens,kv_hit_rate,actual_prefill_worker,actual_decode_worker,cache_on_worker,error
-R1,success,1611.994162085466,1320.44480193872,2932.438964024186,,,,,-,
-R2,success,447.28500302881,1328.6140110576525,1775.8990140864626,,,,,-,
-R3,success,450.1696090446785,1322.231853962876,1772.4014630075544,,,,,-,

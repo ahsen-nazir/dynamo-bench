@@ -1,5 +1,3 @@
-"""Reproducible paired prompt-affinity workload."""
-
 PROMPT_FAMILIES = 10
 
 SHARED_PROMPT = """Analyze a distributed language model serving system and explain how
