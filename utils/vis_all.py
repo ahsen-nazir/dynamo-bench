@@ -11,8 +11,8 @@ import numpy as np, pandas as pd
 import matplotlib as mpl, matplotlib.pyplot as plt
 import seaborn as sns
 
-DATA = sys.argv[1] if len(sys.argv) > 1 else "."
-OUT = sys.argv[2] if len(sys.argv) > 2 else "figs"
+DATA = sys.argv[1] if len(sys.argv) > 1 else "results"
+OUT = sys.argv[2] if len(sys.argv) > 2 else "results/figs"
 os.makedirs(OUT, exist_ok=True)
 
 # ------------------------------------------------------------------ style

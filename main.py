@@ -29,8 +29,8 @@ from dashboard import (
 )
 from logic import send_request
 from prompts import build_requests
-from worker_discovery import latest_request_trace
-from warmup import run_warmup
+from utils.worker_discovery import latest_request_trace
+from utils.warmup import run_warmup
 
 
 def parse_args(argv=None):
@@ -204,6 +204,7 @@ def run_benchmark(experiment_name, worker_labels):
     output_csv = output_path.with_name(
         f"{concurrency_prefix}{PROMPTING_TYPE}_{output_path.name}"
     )
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
     for run_number in range(1, RUNS + 1):
         console.print(
             f"\n[bold {INDIGO}]Run {run_number}/{RUNS}: flushing worker caches[/]"

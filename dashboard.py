@@ -19,7 +19,9 @@ INDIGO = "#A497FF"
 TRACK = "#283653"
 
 console = Console()
-LOGO = Path(__file__).with_name("logo.txt").read_text(encoding="utf-8").rstrip()
+LOGO = (Path(__file__).parent / "misc" / "logo.txt").read_text(
+    encoding="utf-8"
+).rstrip()
 NAMES = {"kv-router": "KV Router", "round-robin": "Round Robin"}
 PHASES = {
     "READY": "Awaiting first request",

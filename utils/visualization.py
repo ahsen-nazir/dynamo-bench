@@ -8,8 +8,8 @@ DATA_DIR must hold the eight files named
 import sys, glob, os
 import pandas as pd, numpy as np, matplotlib as mpl, matplotlib.pyplot as plt
 
-DATA = sys.argv[1] if len(sys.argv) > 1 else "."
-OUT = sys.argv[2] if len(sys.argv) > 2 else "figs"
+DATA = sys.argv[1] if len(sys.argv) > 1 else "results"
+OUT = sys.argv[2] if len(sys.argv) > 2 else "results/figs"
 os.makedirs(OUT, exist_ok=True)
 
 # ---- load: one row per request; 'rep' = repeat (10 blocks of 10 rows per file) ----

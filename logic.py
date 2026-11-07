@@ -7,7 +7,7 @@ import urllib.error
 import urllib.request
 
 from config import MAX_OUTPUT_TOKENS, MODEL, URL
-from worker_discovery import request_id_from_completion_id
+from utils.worker_discovery import request_id_from_completion_id
 
 
 def format_mean(values):

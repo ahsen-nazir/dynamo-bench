@@ -7,6 +7,7 @@ import time
 import urllib.request
 import uuid
 from functools import partial
+from pathlib import Path
 
 from rich.console import Console, Group
 from rich.live import Live
@@ -25,7 +26,7 @@ URL = "http://localhost:8000/v1/chat/completions"
 MODEL = "Qwen/Qwen3-0.6B"
 EXPERIMENTS = 10
 MAX_OUTPUT_TOKENS = 64
-OUTPUT_CSV = "roundrobin_prefix_cache_benchmark.csv"
+OUTPUT_CSV = "results/roundrobin_prefix_cache_benchmark.csv"
 
 # Reduce repetitions if the complete prompt exceeds the model's context limit.
 BASE_PREFIX = (
@@ -357,13 +358,15 @@ def main():
     if not results:
         console.print("[red]No successful pairs.[/]")
         return
-    with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as file:
+    output_path = Path(OUTPUT_CSV)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=results[0].keys())
         writer.writeheader()
         writer.writerows(results)
     print_summary(results)
     console.print(
-        f"\n[bold {BEIGE}]Saved {len(results)} paired experiments to {OUTPUT_CSV}[/]"
+        f"\n[bold {BEIGE}]Saved {len(results)} paired experiments to {output_path}[/]"
     )
 
 

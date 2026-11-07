@@ -34,8 +34,11 @@ from prompts import (
     SHARED_PROMPT,
     build_requests,
 )
-from warmup import build_warmup_request, run_warmup, warm_worker
-from worker_discovery import latest_request_trace, request_id_from_completion_id
+from utils.warmup import build_warmup_request, run_warmup, warm_worker
+from utils.worker_discovery import (
+    latest_request_trace,
+    request_id_from_completion_id,
+)
 
 
 class BenchmarkTests(unittest.TestCase):
@@ -455,8 +458,11 @@ class BenchmarkTests(unittest.TestCase):
     def test_warmup_calls_direct_workers_without_reading_traces(self):
         events = []
         with (
-            patch("warmup.WORKER_PORTS", {"w0": 8100, "w1": 8110}),
-            patch("warmup.warm_worker", side_effect=lambda *args: events.append(args)),
+            patch("utils.warmup.WORKER_PORTS", {"w0": 8100, "w1": 8110}),
+            patch(
+                "utils.warmup.warm_worker",
+                side_effect=lambda *args: events.append(args),
+            ),
             patch("builtins.print"),
         ):
             self.assertIsNone(run_warmup())
