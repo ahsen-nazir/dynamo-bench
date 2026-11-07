@@ -275,20 +275,33 @@ class BenchmarkTests(unittest.TestCase):
                 output_path.with_name("con_random_roundrobin.csv").exists()
             )
 
-    def test_benchmark_runs_two_priming_requests_concurrently(self):
-        workload = build_requests(1)[:4]
+    def test_concurrent_requests_are_numbered_by_family_dispatch_order(self):
+        workload = [
+            ("unused-R1", "question", "P01", "RUN01-F01", "priming"),
+            ("unused-R2", "question", "T01", "RUN01-F01", "test"),
+            ("unused-R3", "question", "P02", "RUN01-F02", "priming"),
+            ("unused-R4", "question", "T02", "RUN01-F02", "test"),
+        ]
         barrier = threading.Barrier(2)
+        first_test_started = threading.Event()
         active = 0
         peak_active = 0
         active_lock = threading.Lock()
+        submitted_requests = {}
 
         def fake_send_request(prompt, on_token=None, request_id=None):
             nonlocal active, peak_active
             with active_lock:
                 active += 1
                 peak_active = max(peak_active, active)
+                submitted_requests[request_id] = prompt
             try:
-                barrier.wait(timeout=2)
+                if prompt in {"P01", "P02"}:
+                    barrier.wait(timeout=2)
+                    if prompt == "P02":
+                        self.assertTrue(first_test_started.wait(timeout=2))
+                elif prompt == "T01":
+                    first_test_started.set()
                 now = time.perf_counter()
                 return {
                     "trace_request_id": "test",
@@ -330,6 +343,15 @@ class BenchmarkTests(unittest.TestCase):
 
         self.assertEqual(len(rows), 4)
         self.assertEqual(peak_active, 2)
+        self.assertEqual(
+            submitted_requests,
+            {
+                "RUN01-R1": "P01",
+                "RUN01-R2": "P02",
+                "RUN01-R3": "T01",
+                "RUN01-R4": "T02",
+            },
+        )
         self.assertTrue(all(row["prefix_hit_rate"] == "20.00" for row in rows))
         self.assertTrue(
             all(

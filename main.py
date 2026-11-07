@@ -418,9 +418,22 @@ def _run_benchmark_once(experiment_name, worker_labels, run_number):
         ]
         active_requests = {}
         next_pair = 0
+        next_request_number = 1
+
+        def number_request(request):
+            nonlocal next_request_number
+            numbered_request = (
+                f"RUN{run_number:02d}-R{next_request_number}",
+                *request[1:],
+            )
+            next_request_number += 1
+            return numbered_request
 
         def submit_priming_request(pair):
-            future = executor.submit(execute_request, *pair[0])
+            future = executor.submit(
+                execute_request,
+                *number_request(pair[0]),
+            )
             active_requests[future] = (pair, 0)
 
         while next_pair < len(request_pairs) and len(active_requests) < CONCURRENCY:
@@ -435,7 +448,10 @@ def _run_benchmark_once(experiment_name, worker_labels, run_number):
                 pair, request_index = active_requests.pop(future)
                 future.result()
                 if request_index == 0:
-                    test_future = executor.submit(execute_request, *pair[1])
+                    test_future = executor.submit(
+                        execute_request,
+                        *number_request(pair[1]),
+                    )
                     active_requests[test_future] = (pair, 1)
                 elif next_pair < len(request_pairs):
                     submit_priming_request(request_pairs[next_pair])
