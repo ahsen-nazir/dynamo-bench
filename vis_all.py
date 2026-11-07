@@ -126,7 +126,9 @@ ax.set_xticklabels([c[2].replace(", ", "\n") for c in CONFIGS])
 ax.set_ylim(0, 115)
 ax.set_yticks([0, 25, 50, 75, 100])
 ax.set_ylabel("Routing accuracy (%)")
-ax.legend(frameon=False, loc="upper right", ncol=2, fontsize=7.5)
+ax.legend(
+    frameon=False, loc="upper right", ncol=2, fontsize=7.5, bbox_to_anchor=(1, 1.1)
+)
 ax.grid(axis="x", visible=False)
 save(fig, "fig1_routing_accuracy")
 
