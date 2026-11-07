@@ -3,3 +3,4 @@
 
 Priming1 starts prefill. Reuse1 reaches the worker and checks the prefix cache.Priming1 has not finished inserting the relevant KV blocks. Reuse1 gets zero cached tokens.
 
+block size is 64
