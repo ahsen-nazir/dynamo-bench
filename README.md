@@ -51,8 +51,9 @@ configuration 4 (*p* = 0.057).
 
 ### Requirements
 
-Use Python 3.12, Docker with the Compose plugin, `uv`, and the Rust toolchain
-required by vLLM. Run the commands and launch scripts from the repository root.
+Use Python 3.12, Docker with the Compose plugin, `uv`, and Cargo
+`1.99.1 (5f94df478 2026-08-27)`. Run the commands and launch scripts from the
+repository root.
 
 Create and activate a virtual environment:
 

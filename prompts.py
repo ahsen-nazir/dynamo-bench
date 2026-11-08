@@ -2,6 +2,8 @@ import random
 
 from config import PROMPTING_TYPE, PROMPT_LENGTH, REQUESTS
 
+random.seed(42)
+
 
 PROMPT_FAMILIES = REQUESTS // 2
 
