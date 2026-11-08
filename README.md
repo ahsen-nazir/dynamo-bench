@@ -1,5 +1,7 @@
 # Dynamo Benchmark: Round Robin vs. KV-Aware Routing
 
+![Benchmark Screenshot](misc/kv-benchmark.png)
+
 ![Architecture diagram](misc/sys_arch.png)
 
 This repository evaluates how Dynamo's round-robin and KV-aware routers affect
@@ -47,8 +49,6 @@ configuration 4 (*p* = 0.057).
 |  | Hit rate (%) ↑ | 6.6 ± 8.5 | **18.2 ± 5.2** | +11.6 pp |
 
 ## Setup
-
-![Benchmark Screenshot](misc/kv-benchmark.png)
 
 ### Requirements
 
