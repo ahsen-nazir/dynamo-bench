@@ -1,4 +1,4 @@
-w# Dynamo Benchmark: Round Robin vs. KV-Aware Routing
+# Dynamo Benchmark: Round Robin vs. KV-Aware Routing
 
 ![Architecture diagram](misc/sys_arch.png)
 
