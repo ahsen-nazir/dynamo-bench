@@ -1,7 +1,6 @@
-# Dynamo Benchmark: Round Robin vs. KV-Aware Routing
+w# Dynamo Benchmark: Round Robin vs. KV-Aware Routing
 
 ![Architecture diagram](misc/sys_arch.png)
-
 
 This repository evaluates how Dynamo's round-robin and KV-aware routers affect
 prefix-cache reuse and request performance when serving with vLLM-RS. It
@@ -46,6 +45,9 @@ configuration 4 (*p* = 0.057).
 | **4. Random prompts, concurrent** | TTFT (ms) ↓ | 3010.7 ± 209.5 | **2774.7 ± 96.1** | −7.8% |
 |  | Total latency (ms) ↓ | 8855.1 ± 489.2 | 8476.9 ± 312.8 | −4.3% (n.s.) |
 |  | Hit rate (%) ↑ | 6.6 ± 8.5 | **18.2 ± 5.2** | +11.6 pp |
+
+
+![Benchmark Screenshot](misc/kv-benchmark.png)
 
 ## Setup
 
