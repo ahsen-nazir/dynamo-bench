@@ -46,10 +46,9 @@ configuration 4 (*p* = 0.057).
 |  | Total latency (ms) ↓ | 8855.1 ± 489.2 | 8476.9 ± 312.8 | −4.3% (n.s.) |
 |  | Hit rate (%) ↑ | 6.6 ± 8.5 | **18.2 ± 5.2** | +11.6 pp |
 
+## Setup
 
 ![Benchmark Screenshot](misc/kv-benchmark.png)
-
-## Setup
 
 ### Requirements
 
