@@ -27,6 +27,8 @@ concurrent request patterns.
 
 ## Results
 
+![Routing Accuracy](results/figs/fig1_routing_accuracy.png)
+
 End-to-end performance is reported as mean ± standard deviation across 10
 repeats. Lower TTFT and total latency are better; higher hit rate is better.
 Bold indicates the better value in each row. All differences are significant
