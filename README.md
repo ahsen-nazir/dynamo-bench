@@ -1,6 +1,6 @@
 # Dynamo Benchmark: Round Robin vs. KV-Aware Routing
 
-<!-- Add the main project image here. -->
+![Architecture diagram](misc/sys_arch.png)
 
 
 This repository evaluates how Dynamo's round-robin and KV-aware routers affect
